@@ -41,8 +41,6 @@ class Tree extends List {
     options.scrollbar = options.scrollbar || scrollbar;
     options.style     = options.style || style;
 
-    options.keys =  true;
-
     List.call(this, options);
 
     this.key(['+', 'right', 'l'], this.expandSelected.bind(this));
@@ -79,6 +77,14 @@ class Tree extends List {
     node.isLastChild = isLastChild;
     const item = this.add(this.toContent(node, isLastChild, parent));
     item.node = node;
+    item.on('click', () => {
+      if (node.expanded) {
+        this.collapseSelected();
+      } else {
+        this.expandSelected();
+      }
+    });
+
     if (this._old_selectedNode === node) {
       this._index_selectedNode = this.items.length - 1;
     }

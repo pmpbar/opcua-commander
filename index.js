@@ -365,7 +365,7 @@ function w(s, l, c) {
 function makeItems(arr) {
   return arr.map(a => `${w(a[0], 25, ".")}: ${w(a[1], attributeList.width - 28)}`);
 }
-function installAttributeList() {
+function renderAttributeList() {
   attributeList = blessed.list({
     parent: area1,
     label: ' {bold}{cyan-fg}Attribute List{/cyan-fg}{/bold} ',
@@ -380,6 +380,8 @@ function installAttributeList() {
     style: _.clone(style),
     align: "left",
     keys: true,
+    vi: true,
+    mouse: true,
   });
   area1.append(attributeList);
 
@@ -400,7 +402,7 @@ function d(dataValue) {
   }
 }
 
-function toString1(attribute, dataValue) {
+function formatNode(attribute, dataValue) {
   if (!dataValue || !dataValue.value  || !Object.hasOwnProperty.call(dataValue.value, "value")) {
     return "<null>";
   }
@@ -431,7 +433,7 @@ function fillAttributesRegion(node) {
         if (dataValue.statusCode !== opcua.StatusCodes.Good) {
           continue;
         }
-        const s = toString1(nodeToRead.attributeId, dataValue);
+        const s = formatNode(nodeToRead.attributeId, dataValue);
 
         const a = s.split("\n");
         if (a.length === 1) {
@@ -453,7 +455,7 @@ function fillAttributesRegion(node) {
 
 let refreshTimer = 0;
 let tree;
-function installAddressSpaceExplorer() {
+function renderAddressSpaceExplorer() {
   tree = new Tree({
     parent: area1,
     tags: true,
@@ -463,7 +465,7 @@ function installAddressSpaceExplorer() {
     left: 'left',
     width: '40%',
     height: '100%',
-    // xx    keys: true,
+    keys: true,
     vi: true,
     mouse: true,
     border: 'line',
@@ -477,7 +479,8 @@ function installAddressSpaceExplorer() {
     }
   });
   tree.on('keypress', (ch, key) => {
-    if (key.name === 'up' || key.name === 'down') {
+    const keys = ['up', 'down', 'j', 'k'];
+    if (keys.some(k => k === key)) {
       if (refreshTimer) {
         return;
       }
@@ -505,7 +508,7 @@ function installAddressSpaceExplorer() {
   tree.focus();
 }
 
-function installMonitoredItemsWindow() {
+function renderMonitoredItemsWindow() {
   monitoredItemsList = blessed.listtable(
     {
       parent: area1,
@@ -515,6 +518,8 @@ function installMonitoredItemsWindow() {
       width: '60%-1',
       height: '50%',
       keys: true,
+      vi: true,
+      mouse: true,
       label: ' Monitored Items ',
       border: 'line',
       scrollbar,
@@ -529,7 +534,7 @@ function installMonitoredItemsWindow() {
 }
 
 let line = null;
-function installGraphWindow() {
+function renderGraphWindow() {
   line = contrib.line(
     {
       top: "40%+1",
@@ -537,6 +542,8 @@ function installGraphWindow() {
       width: '70%-1',
       height: '40%-8',
       keys: true,
+      mouse: true,
+      vi: true,
       style: {
         line: "yellow",
         text: "green",
@@ -559,7 +566,7 @@ function installGraphWindow() {
   line.setData(series1);
 }
 
-function installLogWindow() {
+function renderLogWindow() {
   const logWindow = blessed.list({
 
     parent: area2,
@@ -570,6 +577,8 @@ function installLogWindow() {
     width: '100%',
     height: '100%-4',
     keys: true,
+    vi: true,
+    mouse: true,
     border: 'line',
     scrollable: true,
     scrollbar: {
@@ -604,6 +613,8 @@ function installLogWindow() {
     width: '100%',
     height: 2,
     keys: true,
+    vi: true,
+    mouse: true,
     style: {
       prefix: {
         fg: 'white',
@@ -680,12 +691,11 @@ function installLogWindow() {
   });
 }
 
-installAddressSpaceExplorer();
-// xx installGraphWindow();
-installAttributeList();
-installMonitoredItemsWindow();
-
-installLogWindow();
+renderAddressSpaceExplorer();
+// xx renderGraphWindow();
+renderAttributeList();
+renderMonitoredItemsWindow();
+renderLogWindow();
 
 
 // Render the screen.
